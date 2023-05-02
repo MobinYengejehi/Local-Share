@@ -1,20 +1,117 @@
-// Local-Share.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include <thread>
+#include <string>
+#include <Windows.h>
 
-int main()
-{
-    std::cout << "Hello World!\n";
+#include "Utility.h"
+#include "ConsoleCommands.h"
+#include "Local-Share.h"
+#include "Config.h"
+
+#define C ConsoleCommands::
+
+void RegisterConsoleCommandHandlers() {
+	if (!Application::CommandManager) {
+		return;
+	}
+
+	Application::CommandManager->AddCommand(CONSOLE_COMMAND_HELP, C Help);
+	Application::CommandManager->AddCommand(CONSOLE_COMMAND_EXIT, C Exit);
+	Application::CommandManager->AddCommand(CONSOLE_COMNAND_WORKINGDIR, C WorkingDir);
+
+	Application::CommandManager->AddCommandDescription(CONSOLE_COMMAND_HELP, COMMAND_DESCRIPTION_HELP);
+	Application::CommandManager->AddCommandDescription(CONSOLE_COMMAND_EXIT, COMMAND_DESCRIPTION_EXIT);
+	Application::CommandManager->AddCommandDescription(CONSOLE_COMNAND_WORKINGDIR, COMMAND_DESCRIPTION_WORKINGDIR);
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+void InputProcess() {
+	Application::CommandManager = new CommandControl();
+	if (Application::CommandManager) {
+		RegisterConsoleCommandHandlers();
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+		while (Application::RunningState) {
+			std::getline(std::cin, Application::CommandManager->GetInput());
+			Application::CommandManager->BuildCommand();
+
+			Application::CommandManager->ExecuteCommand(Application::CommandManager->GetCommand());
+			Application::CommandManager->ClearArguments();
+		}
+	}else{
+		SetConsoleColorMode(ConsoleMode::Output);
+		std::cout << CURRENT_TIME << ERROR_MESSAGE << "couldn't allocate memory for command controller" << std::endl;
+		SetConsoleColorMode(ConsoleMode::Input);
+	}
+}
+
+void ShowStartupInfo() {
+	std::string Undefined = "Undefined";
+
+	std::string workingDirectory;
+	GetApplicationDirectory(&workingDirectory);
+
+	#define CheckEmpty(str) (str.empty() ? Undefined : str)
+
+	SetConsoleColorMode(ConsoleMode::Output);
+	std::cout << "--------------------------------------------------------------------------------------------------" << std::endl;
+	std::cout << "----" << std::endl;
+	std::cout << "---- Server Name       : " << APPLICATION_NAME << std::endl;
+	std::cout << "---- Version           : " << GetFilteredVersion(APPLICATION_VERSION) << std::endl;
+	std::cout << "---- Working Directory : " << (workingDirectory.empty() ? "." : workingDirectory) << std::endl;
+	std::cout << "----" << std::endl;
+	std::cout << "--------------------------------------------------------------------------------------------------" << std::endl;
+	std::cout << std::endl;
+	std::cout << "use `help` to see commands" << std::endl;
+	SetConsoleColorMode(ConsoleMode::Input);
+
+	#undef CheckEmpty
+
+	SetConsoleTitleA(APPLICATION_NAME);
+}
+
+int main() {
+	ShowStartupInfo();
+
+	std::thread InputThread(InputProcess);
+
+	InputThread.join();
+
+	return 0;
+}
+
+/*void ApplicationProcess() {
+	unsigned long long i = 0;
+	while (true) {
+		if (i%10000000 == 0) std::cout << "i is : " << i << std::endl;
+		i++;
+	}
+}
+
+void InputProcess(bool* terminated, std::thread* thread) {
+	while (true) {
+		std::string input;
+		std::getline(std::cin, input);
+		if (!*terminated) {
+			std::cout << "terminating thread ..." << std::endl;
+			TerminateThread(thread->native_handle(), 1);
+			thread->detach();
+			*terminated = true;
+			std::cout << "thread teminated" << std::endl;
+		}else{
+			if (input == "exit") {
+				break;
+			}
+		}
+	}
+}
+
+int main() {
+	std::cout << "this is test honey!" << std::endl;
+
+	bool threadTerminated = false;
+    std::thread Process(ApplicationProcess);
+	std::thread Input(InputProcess, &threadTerminated, &Process);
+
+	Input.join();
+
+	return 0;
+}*/
