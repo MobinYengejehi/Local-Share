@@ -66,7 +66,8 @@
 				3,
 				6,
 				8,
-				10
+				10,
+				11
 			]
 		}
 	],
@@ -107,7 +108,8 @@
 				3,
 				6,
 				8,
-				10
+				10,
+				11
 			]
 		},
 		{
@@ -119,7 +121,8 @@
 				4,
 				5,
 				7,
-				9
+				9,
+				12
 			]
 		}
 	],
@@ -184,6 +187,17 @@
 			"compileGroupIndex" : 0,
 			"path" : "Local-Share/HostManager.cpp",
 			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "Local-Share/ClientConnection.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "Local-Share/ClientConnection.h",
+			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

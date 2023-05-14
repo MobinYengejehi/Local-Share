@@ -55,7 +55,7 @@
 				{
 					"directoryIndex" : 1,
 					"id" : "Local-Share::@5f6d61a3e376d0da8bb1",
-					"jsonFile" : "target-Local-Share-Release-4afbaf2ec6e62cb1484c.json",
+					"jsonFile" : "target-Local-Share-Release-214ee5906778db9b1b0a.json",
 					"name" : "Local-Share",
 					"projectIndex" : 0
 				}
@@ -65,7 +65,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "D:/projects/Local-Share/Local-Share/out/build/x64-release",
+		"build" : "D:/projects/Local-Share/Local-Share/out/build/x86-release",
 		"source" : "D:/projects/Local-Share/Local-Share"
 	},
 	"version" : 

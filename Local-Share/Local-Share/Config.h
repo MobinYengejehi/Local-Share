@@ -18,4 +18,15 @@
 #define COMMAND_DESCRIPTION_HASWIFIADAPTER "this command shows if system has wifi adapter of not"
 #define COMMAND_DESCRIPTION_WIFIADDRESS "this command shows wifi ip address"
 
+#define COMMAND_DESCRIPTION_STARTSERVER "[port] = this command starts data share server"
+#define COMMAND_DESCRIPTION_STOPSERVER "this command stops data share server"
+#define COMMAND_DESCRIPTION_SERVERSTATUS "this command shows if data share server is running or not"
+#define COMMAND_DESCRIPTION_SERVERPORT "this command shows the port of data share server"
+
+#define COMMAND_DESCRIPTION_CONNECT "[ip address] [port] = this command connects to a data share server if not already connected"
+#define COMMAND_DESCRIPTION_DISCONNECT "this command disconnects from data share server"
+#define COMMAND_DESCRIPTION_CONNECTIONSTATUS "this command shows if system connected to a data share server or not"
+#define COMMAND_DESCRIPTION_CONNECTIONIP "this command shows the connection ip"
+#define COMMAND_DESCRIPTION_CONNECTIONPORT "this command shows the connection port"
+
 #endif

@@ -32,6 +32,32 @@ void RegisterConsoleCommandHandlers() {
 	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_WIFIADDRESS, COMMAND_DESCRIPTION_WIFIADDRESS);
 }
 
+void DataShareServerProcess() {
+	if (!g_HostManager) {
+		return;
+	}
+
+	while (ApplicationRunning) {
+		if (g_HostManager->IsRunning()) {
+			if (g_HostManager->IsConnected()) {
+				Sleep(1000);
+				continue;
+			}
+			g_HostManager->ProcessConnection();
+		}else{
+			Sleep(1000);
+		}
+	}
+}
+
+void ClientConnectionProcess() {
+	if (!g_ClientConnection) {
+		return;
+	}
+
+
+}
+
 void InputProcess() {
 	g_CommandManager = new CommandControl();
 	if (g_CommandManager) {
@@ -83,11 +109,28 @@ void ShowStartupInfo() {
 }
 
 int main() {
+	g_HostManager = new HostManager();
+	g_HostManager->SetServerHost(ANYMACHINE);
+	g_HostManager->SetServerPort(DEFAULT_PORT);
+
+	g_ClientConnection = new ClientConnection();
+	g_ClientConnection->SetServerHost(LOCALHOST);
+	g_ClientConnection->SetServerPort(DEFAULT_PORT);
+	
 	ShowStartupInfo();
 
 	std::thread InputThread(InputProcess);
 
 	InputThread.join();
+
+	if (g_ServerThread) {
+		TerminateThread(g_ServerThread->native_handle(), 1);
+		g_ServerThread->detach();
+	}
+	if (g_ClientThread) {
+		TerminateThread(g_ClientThread->native_handle(), 1);
+		g_ClientThread->detach();
+	}
 
 	return 0;
 }
