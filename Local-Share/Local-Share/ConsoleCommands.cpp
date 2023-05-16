@@ -126,6 +126,27 @@ Command WifiAddress(Arguments) {
 	SetConsoleColorMode(ConsoleMode::Input);
 }
 
+
+Command Say(Arguments) {
+
+}
+
+Command SendFile(Arguments) {
+
+}
+
+Command SendDir(Arguments) {
+
+}
+
+Command CancelTransfer(Arguments) {
+
+}
+
+Command IsBusy(Arguments) {
+
+}
+
 std::string get(Arguments, const int& index) {
 	if (index < arguments.size() && index > -1) {
 		return arguments[index];

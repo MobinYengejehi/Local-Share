@@ -4,11 +4,12 @@
 #define HOST_MANAGER_HEADER
 
 #include <string>
-#include <Windows.h>
+#include <vector>
+#include <map>
+#include <ws2tcpip.h>
 
 #include "SocketData.h"
-
-typedef void (*HostManagerDataHandler)(SocketData*);
+#include "EventManager.h"
 
 class HostManager {
 public:
@@ -18,8 +19,17 @@ public:
 	std::string& GetServerHost();
 	int&         GetServerPort();
 
+	EventManager& GetEventManager();
+
 	SOCKET& GetServerSocket();
 	SOCKET& GetClientSocket();
+
+	size_t& GetBufferLength();
+
+	char* GetReadBuffer();
+	char* GetResultRecieved();
+
+	long& GetTotalBytesRecieved();
 
 	void SetServerHost(const std::string&);
 	void SetServerPort(const int&);
@@ -27,12 +37,9 @@ public:
 	void SetServerSocket(const SOCKET&);
 	void SetClientSocket(const SOCKET&);
 
-	void AddDataHandler(const std::string&, HostManagerDataHandler);
-	void AddDataHandler(HostManagerDataHandler);
-	void RemoveDataHandler(const std::string&, HostManagerDataHandler);
-	void RemoveDataHandler(HostManagerDataHandler);
-	void TriggerDataHandler(const SocketData&);
-	void Cancel();
+	void SetBufferLength(const size_t&);
+
+	void TriggerClientEvent(SocketData&);
 
 	void Start();
 	void Stop();
@@ -43,7 +50,6 @@ public:
 
 	bool IsRunning();
 	bool IsConnected();
-	bool IsCanceled();
 
 	static void CleanUp();
 private:
@@ -51,10 +57,18 @@ private:
 	int         port;
 	bool        running;
 	bool        connected;
-	bool        canceled;
+
+	EventManager events;
 
 	SOCKET server;
 	SOCKET client;
+
+	size_t bufferLength;
+
+	char* readBuffer;
+	char* resultRecieved;
+
+	long totalBytesRecieved;
 };
 
 #endif

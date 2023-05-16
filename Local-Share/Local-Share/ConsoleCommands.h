@@ -24,6 +24,14 @@
 #define CONSOLE_COMMNAD_CONNECTIONIP "connectionip"
 #define CONSOLE_COMMAND_CONNECTIONPORT "connectionport"
 
+#define CONSOLE_COMMAND_SAY "say"
+
+#define CONSOLE_COMMAND_SENDFILE "sendfile"
+#define CONSOLE_COMMAND_SENDDIR "senddir"
+#define CONSOLE_COMMAND_CANCELTRANSFER "canceltransfer"
+
+#define CONSOLE_COMMAND_ISBUSY "isbusy"
+
 class ConsoleCommands {
 public:
 	static void Help(CommandArguments&);
@@ -44,6 +52,14 @@ public:
 	static void ConnectionStatus(CommandArguments&);
 	static void ConnectionIP(CommandArguments&);
 	static void ConnectionPort(CommandArguments&);
+
+	static void Say(CommandArguments&);
+
+	static void SendFile(CommandArguments&);
+	static void SendDir(CommandArguments&);
+	static void CancelTransfer(CommandArguments&);
+
+	static void IsBusy(CommandArguments&);
 };
 
 #endif

@@ -126,6 +126,13 @@ build Local-Share\CMakeFiles\Local-Share.dir\SocketData.cpp.obj: CXX_COMPILER__L
   TARGET_COMPILE_PDB = Local-Share\CMakeFiles\Local-Share.dir\
   TARGET_PDB = Local-Share\Local-Share.pdb
 
+build Local-Share\CMakeFiles\Local-Share.dir\EventManager.cpp.obj: CXX_COMPILER__Local-Share_Release D$:\projects\Local-Share\Local-Share\Local-Share\EventManager.cpp || cmake_object_order_depends_target_Local-Share
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  OBJECT_DIR = Local-Share\CMakeFiles\Local-Share.dir
+  OBJECT_FILE_DIR = Local-Share\CMakeFiles\Local-Share.dir
+  TARGET_COMPILE_PDB = Local-Share\CMakeFiles\Local-Share.dir\
+  TARGET_PDB = Local-Share\Local-Share.pdb
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Local-Share
@@ -134,7 +141,7 @@ build Local-Share\CMakeFiles\Local-Share.dir\SocketData.cpp.obj: CXX_COMPILER__L
 #############################################
 # Link the executable Local-Share\Local-Share.exe
 
-build Local-Share\Local-Share.exe: CXX_EXECUTABLE_LINKER__Local-Share_Release Local-Share\CMakeFiles\Local-Share.dir\Local-Share.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\CommandControl.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\ConsoleCommands.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\Utility.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\HostManager.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\ClientConnection.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\SocketData.cpp.obj
+build Local-Share\Local-Share.exe: CXX_EXECUTABLE_LINKER__Local-Share_Release Local-Share\CMakeFiles\Local-Share.dir\Local-Share.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\CommandControl.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\ConsoleCommands.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\Utility.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\HostManager.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\ClientConnection.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\SocketData.cpp.obj Local-Share\CMakeFiles\Local-Share.dir\EventManager.cpp.obj
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG
   LINK_FLAGS = /machine:X86 /INCREMENTAL:NO /subsystem:console
   LINK_LIBRARIES = kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

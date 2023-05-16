@@ -9,7 +9,6 @@
 #define SOCKET_DATA_SEPRATOR ";"
 
 SocketDataEntry::operator std::string() {
-
 	std::string result = SOCKET_DATA_ENTRY_BRACKET;
 	result += key;
 	result += SOCKET_DATA_ENTRY_BRACKET;

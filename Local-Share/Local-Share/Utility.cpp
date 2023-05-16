@@ -11,6 +11,8 @@
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include <ws2tcpip.h>
+#include <lmcons.h>
+
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Iphlpapi.lib")
@@ -188,6 +190,15 @@ void GetWifiAdapter(NetAdapter* adapter) {
 			return;
 		}
 	}
+}
+
+void GetWindowsUsername(std::string* username) {
+	char  user[UNLEN + 1];
+	DWORD usernameLength = UNLEN + 1;
+
+	GetUserName(user, &usernameLength);
+
+	*username = std::string(user, usernameLength);
 }
 
 bool HasWifiAdapter() {

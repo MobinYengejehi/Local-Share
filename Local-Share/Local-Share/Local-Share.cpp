@@ -23,6 +23,14 @@ void RegisterConsoleCommandHandlers() {
 	g_CommandManager->AddCommand(CONSOLE_COMMAND_HASWIFIADAPTER, C HasWifiAdapter);
 	g_CommandManager->AddCommand(CONSOLE_COMMAND_WIFIADDRESS, C WifiAddress);
 
+	g_CommandManager->AddCommand(CONSOLE_COMMAND_SAY, C Say);
+
+	g_CommandManager->AddCommand(CONSOLE_COMMAND_SENDFILE, C SendFile);
+	g_CommandManager->AddCommand(CONSOLE_COMMAND_SENDDIR, C SendDir);
+	g_CommandManager->AddCommand(CONSOLE_COMMAND_CANCELTRANSFER, C CancelTransfer);
+
+	g_CommandManager->AddCommand(CONSOLE_COMMAND_ISBUSY, C IsBusy);
+
 	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_HELP, COMMAND_DESCRIPTION_HELP);
 	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_EXIT, COMMAND_DESCRIPTION_EXIT);
 	g_CommandManager->AddCommandDescription(CONSOLE_COMNAND_WORKINGDIR, COMMAND_DESCRIPTION_WORKINGDIR);
@@ -30,6 +38,14 @@ void RegisterConsoleCommandHandlers() {
 	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_ADAPTERS, COMMAND_DESCRIPTION_ADAPTERS);
 	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_HASWIFIADAPTER, COMMAND_DESCRIPTION_HASWIFIADAPTER);
 	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_WIFIADDRESS, COMMAND_DESCRIPTION_WIFIADDRESS);
+
+	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_SAY, COMMAND_DESCRIPTION_SAY);
+	
+	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_SENDFILE, COMMAND_DESCRIPTION_SENDFILE);
+	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_SENDDIR, COMMAND_DESCRIPTION_SENDDIR);
+	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_CANCELTRANSFER, COMMAND_DESCRIPTION_CANCELTRANSFER);
+
+	g_CommandManager->AddCommandDescription(CONSOLE_COMMAND_ISBUSY, COMMAND_DESCRIPTION_ISBUSY);
 }
 
 void DataShareServerProcess() {
@@ -38,15 +54,7 @@ void DataShareServerProcess() {
 	}
 
 	while (ApplicationRunning) {
-		if (g_HostManager->IsRunning()) {
-			if (g_HostManager->IsConnected()) {
-				Sleep(1000);
-				continue;
-			}
-			g_HostManager->ProcessConnection();
-		}else{
-			Sleep(1000);
-		}
+		g_HostManager->ProcessConnection();
 	}
 }
 
@@ -55,7 +63,9 @@ void ClientConnectionProcess() {
 		return;
 	}
 
-
+	while (ApplicationRunning) {
+		g_ClientConnection->ProcessConnection();
+	}
 }
 
 void InputProcess() {
@@ -116,7 +126,7 @@ int main() {
 	g_ClientConnection = new ClientConnection();
 	g_ClientConnection->SetServerHost(LOCALHOST);
 	g_ClientConnection->SetServerPort(DEFAULT_PORT);
-	
+
 	ShowStartupInfo();
 
 	std::thread InputThread(InputProcess);
@@ -126,49 +136,13 @@ int main() {
 	if (g_ServerThread) {
 		TerminateThread(g_ServerThread->native_handle(), 1);
 		g_ServerThread->detach();
+		g_ServerThread = NULL;
 	}
 	if (g_ClientThread) {
 		TerminateThread(g_ClientThread->native_handle(), 1);
 		g_ClientThread->detach();
+		g_ClientThread = NULL;
 	}
 
 	return 0;
 }
-
-/*void ApplicationProcess() {
-	unsigned long long i = 0;
-	while (true) {
-		if (i%10000000 == 0) std::cout << "i is : " << i << std::endl;
-		i++;
-	}
-}
-
-void InputProcess(bool* terminated, std::thread* thread) {
-	while (true) {
-		std::string input;
-		std::getline(std::cin, input);
-		if (!*terminated) {
-			std::cout << "terminating thread ..." << std::endl;
-			TerminateThread(thread->native_handle(), 1);
-			thread->detach();
-			*terminated = true;
-			std::cout << "thread teminated" << std::endl;
-		}else{
-			if (input == "exit") {
-				break;
-			}
-		}
-	}
-}
-
-int main() {
-	std::cout << "this is test honey!" << std::endl;
-
-	bool threadTerminated = false;
-    std::thread Process(ApplicationProcess);
-	std::thread Input(InputProcess, &threadTerminated, &Process);
-
-	Input.join();
-
-	return 0;
-}*/

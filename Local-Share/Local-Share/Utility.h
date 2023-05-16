@@ -51,6 +51,8 @@ bool IsValidNetAdapter(const NetAdapter&);
 void GetWifiAdapter(NetAdapter*);
 bool HasWifiAdapter();
 
+void GetWindowsUsername(std::string*);
+
 std::string GetTime();
 
 #define CURRENT_TIME "[" + GetTime() + "]"

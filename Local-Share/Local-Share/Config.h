@@ -29,4 +29,12 @@
 #define COMMAND_DESCRIPTION_CONNECTIONIP "this command shows the connection ip"
 #define COMMAND_DESCRIPTION_CONNECTIONPORT "this command shows the connection port"
 
+#define COMMAND_DESCRIPTION_SAY "[message] = this command sends a message to host/client"
+
+#define COMMAND_DESCRIPTION_SENDFILE "[file name] = this command sends a file to host/client"
+#define COMMAND_DESCRIPTION_SENDDIR "[directory name (if leave this empty app will send all files and directories in working directory)] = this command sends a directory to host/client"
+#define COMMAND_DESCRIPTION_CANCELTRANSFER "this command cancels sending file to host/client"
+
+#define COMMAND_DESCRIPTION_ISBUSY "this command shows if host/client is sending/recieving files or not"
+
 #endif
