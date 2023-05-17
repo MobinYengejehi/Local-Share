@@ -9,6 +9,8 @@
 #include "HostManager.h"
 #include "ClientConnection.h"
 
+typedef void (*VoidFunction)();
+
 bool ApplicationRunning = true;
  
 CommandControl* g_CommandManager = nullptr;
@@ -19,7 +21,7 @@ ClientConnection* g_ClientConnection = nullptr;
 std::thread* g_ServerThread = nullptr;
 std::thread* g_ClientThread = nullptr;
 
-void DataShareServerProcess();
-void ClientConnectionProcess();
+VoidFunction DataShareServerProcess;
+VoidFunction ClientConnectionProcess;
 
 #endif

@@ -9,6 +9,13 @@
 #include "SocketData.h"
 #include "EventManager.h"
 
+#define CLIENT_CONNECT_MESSAGE_TYPE "connect"
+#define CLIENT_DISCONNECT_MESSAGE_TYPE "disconnect"
+
+#define CLIENT_DISCONNECT_REQUEST_MESSAGE "requestdc"
+
+#define DEFAULT_CLIENT_BUFFER_LENGTH 0xfff
+
 class ClientConnection {
 public:
 	ClientConnection();

@@ -20,8 +20,8 @@
 
 #define CONSOLE_COMMAND_CONNECT "connect"
 #define CONSOLE_COMMAND_DISCONNECT "disconnect"
-#define CONSOLE_COMMNAD_CONNECTIONSTATUS "connectionstatus"
-#define CONSOLE_COMMNAD_CONNECTIONIP "connectionip"
+#define CONSOLE_COMMAND_CONNECTIONSTATUS "connectionstatus"
+#define CONSOLE_COMMAND_CONNECTIONIP "connectionip"
 #define CONSOLE_COMMAND_CONNECTIONPORT "connectionport"
 
 #define CONSOLE_COMMAND_SAY "say"

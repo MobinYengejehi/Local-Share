@@ -4,18 +4,6 @@
 
 #include "HostManager.h"
 
-#define SOCKET_MAX_CONNECTIONS 1
-#define DEFAULT_SOCKET_BUFFER_LENGTH 0xfff
-
-#define SOCKET_CLIENT_CONNECT_MESSAGE_TYPE "connect"
-#define SOCKET_CLIENT_DISCONNECT_MESSAGE_TYPE "disconnect"
-
-#define SOCKET_CLIENT_DISCONNECT_MESSAGE "disconnected"
-#define SOCKET_CLIENT_TIMEOUT_MESSAGE "Timed out"
-#define SOCKET_CLIENT_CONNECTION_CLOSE_MESSAGE "connection closed"
-
-#define SOCKET_CLIENT_DISCONNECT_REQUEST_MESSAGE "requestdc"
-
 HostManager::HostManager() {
 	running = false;
 	connected = false;
@@ -207,7 +195,7 @@ void HostManager::Stop() {
 	server = INVALID_SOCKET;
 	running = false;
 
-	CleanUp();
+	//CleanUp();
 }
 
 void HostManager::ProcessConnection() {

@@ -13,7 +13,6 @@
 #include <ws2tcpip.h>
 #include <lmcons.h>
 
-
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 
@@ -145,6 +144,9 @@ void GetNetAdapterList(NetAdapterList* list) {
 		netAddress.adapter = description;
 		netAddress.name = name;
 
+		delete[] description;
+		delete[] name;
+
 		for (IP_ADAPTER_UNICAST_ADDRESS* address = adapter->FirstUnicastAddress; address != NULL; address = address->Next) {
 			ADDRESS_FAMILY family = address->Address.lpSockaddr->sa_family;
 			if (family == AF_INET) {
@@ -198,7 +200,7 @@ void GetWindowsUsername(std::string* username) {
 
 	GetUserName(user, &usernameLength);
 
-	*username = std::string(user, usernameLength);
+	*username = std::string(user, usernameLength - 1);
 }
 
 bool HasWifiAdapter() {
