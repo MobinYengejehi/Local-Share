@@ -3,12 +3,19 @@
 #include <iostream>
 #include <thread>
 #include <string.h>
+#include <filesystem>
 
 #include "Utility.h"
 
 #include "HostManager.h"
 #include "ClientConnection.h"
 #include "SharedEvents.h"
+#include "FolderQueue.h"
+
+#define CONSOLE_LINE_MAX_CHARACTERS 0x78
+
+#define Command void ConsoleCommands::
+#define Arguments CommandArguments& arguments
 
 typedef void (*VoidFunction)();
 
@@ -25,10 +32,13 @@ extern std::thread* g_ClientThread;
 extern VoidFunction DataShareServerProcess;
 extern VoidFunction ClientConnectionProcess;
 
-#define CONSOLE_LINE_MAX_CHARACTERS 0x78
+extern FILE*  WorkingFile;
+extern void*  FileBuffer;
+extern size_t FileBytesRead;
+extern size_t FileSize;
+extern bool   IsProcessingFile;
 
-#define Command void ConsoleCommands::
-#define Arguments CommandArguments& arguments
+extern FolderQueue* FolderInterface;
 
 std::string  get(Arguments, const int&);
 bool         isint(const std::string&);
@@ -409,11 +419,198 @@ Command Say(Arguments) {
 }
 
 Command SendFile(Arguments) {
+	SetConsoleColorMode(ConsoleMode::Output);
 
+	std::string filePath;
+
+	for (const std::string& pathChunk : arguments) {
+		filePath += pathChunk;
+		filePath += " ";
+	}
+	
+	if (!filePath.empty()) filePath.pop_back();
+
+	if (filePath.empty()) {
+		std::cout << CURRENT_TIME << ERROR_MESSAGE << "file path can't be empty" << std::endl;
+	}else{
+		if (IsProcessingFile) {
+			std::cout << CURRENT_TIME << ERROR_MESSAGE << "system is already processing file. first cancel it" << std::endl;
+		}else{
+			WorkingFile = fopen(filePath.c_str(), "rb");
+			if (WorkingFile) {
+				memset(FileBuffer, 0, FILE_SENDING_BUFFER_SIZE);
+
+				FileBytesRead = 0;
+
+				fseek(WorkingFile, 0, SEEK_END);
+				FileSize = ftell(WorkingFile);
+				rewind(WorkingFile);
+
+				IsProcessingFile = true;
+
+				SocketData sendData;
+				sendData.type = SHARED_EVENTS_TYPE_NEWFILE;
+				sendData.content = filePath;
+
+				if (g_HostManager->IsRunning()) {
+					if (g_HostManager->IsConnected()) {
+						try {
+							g_HostManager->TriggerClientEvent(sendData);
+
+							std::cout << CURRENT_TIME << INFO_MESSAGE << "start sending file[" << filePath << "] to client" << std::endl;
+						}catch (const std::exception& exception) {
+							std::cout << CURRENT_TIME << ERROR_MESSAGE << exception.what() << std::endl;
+
+							FileProcessingCleanup();
+						}
+
+					}else{
+						std::cout << CURRENT_TIME << ERROR_MESSAGE << "you didn't connect to any clients yet" << std::endl;
+
+						FileProcessingCleanup();
+					}
+				}else{
+					if (g_ClientConnection->IsConnected()) {
+						try {
+							g_ClientConnection->TriggerServerEvent(sendData);
+
+							std::cout << CURRENT_TIME << INFO_MESSAGE << "start sending file[" << filePath << "] to host" << std::endl;
+						}catch (const std::exception& exception) {
+							std::cout << CURRENT_TIME << ERROR_MESSAGE << exception.what() << std::endl;
+
+							FileProcessingCleanup();
+						}
+					}else{
+						std::cout << CURRENT_TIME << ERROR_MESSAGE << "you didn't connect to any hosts yet" << std::endl;
+
+						FileProcessingCleanup();
+					}
+				}
+			}else{
+				std::cout << CURRENT_TIME << ERROR_MESSAGE << "couldn't find/load file[" << filePath << "]" << std::endl;
+			}
+		}
+	}
+
+	SetConsoleColorMode(ConsoleMode::Input);
 }
 
 Command SendDir(Arguments) {
+	SetConsoleColorMode(ConsoleMode::Output);
 
+	std::string path;
+	std::string directory;
+
+	for (const std::string& pathChunk : arguments) {
+		path += pathChunk;
+		path += " ";
+	}
+
+	if (!path.empty()) path.pop_back();
+
+	GetApplicationDirectory(&directory);
+
+	std::string targetDirectoryPath = directory;
+	if (!path.empty()) {
+		targetDirectoryPath += "/";
+		targetDirectoryPath += path;
+	}
+
+	if (IsProcessingFile) {
+		std::cout << CURRENT_TIME << ERROR_MESSAGE << "system is already processing file. first cancel it." << std::endl;
+	}else{
+		if (std::filesystem::is_directory(targetDirectoryPath)) {
+			FolderInterface = new FolderQueue(targetDirectoryPath);
+			if (FolderInterface->GetEntitiesCount() > 0) {
+				FolderQueueEntity* file = FolderInterface->Next();
+
+				std::string applicationName;
+				GetApplicationFileName(&applicationName);
+				
+				if (file->directory.empty() && file->name == applicationName) {
+					file = FolderInterface->Next();
+				}
+
+				if (file) {
+					std::string filePath;
+					
+					if (!file->directory.empty()) {
+						filePath += file->directory;
+						filePath += "/";
+					}
+
+					filePath += file->name;
+
+					WorkingFile = fopen(filePath.c_str(), "rb");
+					if (WorkingFile) {
+						memset(FileBuffer, 0, FILE_SENDING_BUFFER_SIZE);
+
+						FileBytesRead = 0;
+
+						fseek(WorkingFile, 0, SEEK_END);
+						FileSize = ftell(WorkingFile);
+						rewind(WorkingFile);
+
+						IsProcessingFile = true;
+
+						SocketData sendData;
+						sendData.type = SHARED_EVENTS_TYPE_NEWFILE;
+						sendData.content = filePath;
+
+						if (g_HostManager->IsRunning()) {
+							if (g_HostManager->IsConnected()) {
+								try {
+									g_HostManager->TriggerClientEvent(sendData);
+
+									std::cout << CURRENT_TIME << INFO_MESSAGE << "started processing file[" << filePath << "]" << std::endl;
+								}catch (const std::exception& exception) {
+									std::cout << CURRENT_TIME << ERROR_MESSAGE << exception.what() << std::endl;
+
+									FileProcessingCleanup();
+								}
+							}else{
+								std::cout << CURRENT_TIME << ERROR_MESSAGE << "you didn't connect to any clients yet" << std::endl;
+
+								FileProcessingCleanup();
+							}
+						}else{
+							if (g_ClientConnection->IsConnected()) {
+								try {
+									g_ClientConnection->TriggerServerEvent(sendData);
+								
+									std::cout << CURRENT_TIME << INFO_MESSAGE << "started processing file[" << filePath << "]" << std::endl;
+								}catch (const std::exception& exception) {
+									std::cout << CURRENT_TIME << ERROR_MESSAGE << exception.what() << std::endl;
+
+									FileProcessingCleanup();
+								}
+							}else{
+								std::cout << CURRENT_TIME << ERROR_MESSAGE << "you didn't connect to any hosts yet" << std::endl;
+								
+								FileProcessingCleanup();
+							}
+						}
+					}else{
+						std::cout << CURRENT_TIME << ERROR_MESSAGE << "couldn't load file[" << filePath << "]" << std::endl;
+
+						FileProcessingCleanup();
+					}
+				}else{
+					std::cout << CURRENT_TIME << ERROR_MESSAGE << "directory [" << path << "] is empty" << std::endl;
+
+					FileProcessingCleanup();
+				}
+			}else{
+				std::cout << CURRENT_TIME << ERROR_MESSAGE << "directory [" << path << "] is empty" << std::endl;
+
+				FileProcessingCleanup();
+			}
+		}else{
+			std::cout << CURRENT_TIME << ERROR_MESSAGE << "path '" << path << "' doesn't belong to a directory" << std::endl;
+		}
+	}
+	
+	SetConsoleColorMode(ConsoleMode::Input);
 }
 
 Command CancelTransfer(Arguments) {
@@ -421,7 +618,19 @@ Command CancelTransfer(Arguments) {
 }
 
 Command IsBusy(Arguments) {
+	SetConsoleColorMode(ConsoleMode::Output);
+	
+	std::cout << CURRENT_TIME << INFO_MESSAGE << "system ";
 
+	if (IsProcessingFile) {
+		std::cout << "is ";
+	}else{
+		std::cout << "is not ";
+	}
+
+	std::cout << "processing file" << std::endl;
+
+	SetConsoleColorMode(ConsoleMode::Input);
 }
 
 std::string get(Arguments, const int& index) {

@@ -6,58 +6,32 @@
 #include <string>
 #include <vector>
 
-/*class FolderQueueEntry;
-class FolderQueue;
-
-typedef std::vector<FolderQueueEntry> FolderQueueEntryList;
-
-class FolderQueueEntry {
-public:
+struct FolderQueueEntity {
+	std::string directory;
 	std::string name;
-	bool        directory;
-	FolderQueue entries;
+};
 
-	FolderQueueEntry();
-};*/
-
-class FolderQueue;
-
-typedef std::vector<FolderQueue> FolderQueueList;
+typedef std::vector<FolderQueueEntity> FolderQueueEntityList;
 
 class FolderQueue {
 public:
 	FolderQueue(const std::string&);
-	FolderQueue(const std::string&, const bool&, const std::string&);
 	~FolderQueue() = default;
 
-	int&         GetIndex();
-	std::string& GetPath();
-	std::string& GetName();
+	FolderQueueEntityList& GetEntities();
+	size_t                 GetEntitiesCount();
 
-	FolderQueue* GetTarget();
+	void SetEntities(const FolderQueueEntityList&);
 
-	FolderQueueList& GetEntries();
+	FolderQueueEntity* Next();
 
-	void SetUsedName(const bool&);
-	void SetTarget(FolderQueue*);
+	bool IsEmpty();
 
-	bool Next(std::string*);
-	bool NextIndex();
-	void Reset();
+	static FILE* CreateFileWithPath(const std::string& path, std::string on = "~");
 
-	bool IsDirectory();
-	bool HasUsedName();
-	
 private:
-	int         index;
-	bool        directory;
-	bool        usedName;
-	std::string path;
-	std::string name;
-
-	FolderQueue* target;
-
-	FolderQueueList entries;
+	int                   on;
+	FolderQueueEntityList entities;
 };
 
 #endif

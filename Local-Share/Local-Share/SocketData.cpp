@@ -86,9 +86,10 @@ SocketData::operator std::string() {
 			result += SOCKET_DATA_ENTRY_SEPRATOR;
 		}
 		result.pop_back();
-		result += SOCKET_DATA_SEPRATOR;
 	}
 
+	result += SOCKET_DATA_SEPRATOR;
+	
 	result += content;
 
 	return result;

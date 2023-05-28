@@ -3,11 +3,13 @@
 #ifndef LOCAL_SHARE_HEADER
 #define LOCAL_SHARE_HEADER
 
+#include <filesystem>
 #include <thread>
 
 #include "CommandControl.h"
 #include "HostManager.h"
 #include "ClientConnection.h"
+#include "FolderQueue.h"
 
 typedef void (*VoidFunction)();
 
@@ -23,5 +25,13 @@ std::thread* g_ClientThread = nullptr;
 
 VoidFunction DataShareServerProcess;
 VoidFunction ClientConnectionProcess;
+
+FILE*  WorkingFile = NULL;
+void*  FileBuffer = NULL;
+size_t FileBytesRead = 0;
+size_t FileSize = 0;
+bool   IsProcessingFile = false;
+
+FolderQueue* FolderInterface = NULL;
 
 #endif

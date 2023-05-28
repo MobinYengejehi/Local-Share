@@ -12,11 +12,22 @@
 #include <iphlpapi.h>
 #include <ws2tcpip.h>
 #include <lmcons.h>
+#include <filesystem>
+
+#include "FolderQueue.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 
 #define NET_CONFIG_WIFI_NAME "Wi-Fi"
+
+extern FILE* WorkingFile;
+extern void* FileBuffer;
+extern size_t FileBytesRead;
+extern size_t FileSize;
+extern bool   IsProcessingFile;
+
+extern FolderQueue* FolderInterface;
 
 std::string GetFilteredVersion(const float& Version) {
 	std::string version;
@@ -74,6 +85,25 @@ int GetApplicationPath(std::string* path) {
 	int bytes = GetModuleFileNameA(NULL, pathBuffer, sizeof(pathBuffer));
 	*path = ReplaceString(pathBuffer, "\\", "/");
 	return bytes ? bytes : -1;
+}
+
+int GetApplicationFileName(std::string* name) {
+	if (!name) {
+		return 0;
+	}
+
+	std::string appPath;
+	GetApplicationPath(&appPath);
+	
+	if (appPath.empty()) {
+		return 0;
+	}
+
+	StringList nameList;
+	SplitString(appPath, "/", &nameList);
+
+	*name = nameList.back();
+	return 1;
 }
 
 int GetApplicationDirectory(std::string* directory) {
@@ -307,4 +337,25 @@ void Ignore(std::string* string, const std::string& what, const size_t& from) {
 	}
 
 	*string = result;
+}
+
+void FileProcessingCleanup(bool keepFolder) {
+	if (WorkingFile) {
+		fclose(WorkingFile);
+	}
+
+	memset(FileBuffer, 0, FILE_SENDING_BUFFER_SIZE);
+
+	WorkingFile = NULL;
+	FileBytesRead = 0;
+	FileSize = 0;
+
+	IsProcessingFile = false;
+
+	if (keepFolder) {
+		if (FolderInterface) {
+			delete FolderInterface;
+		}
+		FolderInterface = NULL;
+	}
 }

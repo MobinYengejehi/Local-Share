@@ -17,6 +17,8 @@
 #define NET_CONFIG_WORKING_BUFFER_SIZE 16384
 #define NET_CONFIG_MAX_TRIES 3
 
+#define FILE_SENDING_BUFFER_SIZE 0xffff
+
 typedef unsigned int uint;
 
 typedef std::vector<std::string> StringList;
@@ -43,6 +45,7 @@ std::string ConcatString(StringList*, const std::string&);
 std::string ReplaceString(const std::string&, const std::string&, const std::string&);
 
 int GetApplicationPath(std::string*);
+int GetApplicationFileName(std::string*);
 int GetApplicationDirectory(std::string*);
 
 void GetNetAdapterList(NetAdapterList*);
@@ -62,5 +65,7 @@ void SetConsoleColorMode(const ConsoleMode&);
 bool FindNextPos(std::string*, const std::string&, const size_t& from = 0, size_t* pos = nullptr);
 
 void Ignore(std::string*, const std::string&, const size_t& from = 0);
+
+void FileProcessingCleanup(bool keepFolder = true);
 
 #endif
