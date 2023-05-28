@@ -77,6 +77,11 @@ void SharedEvents::NewFile(SocketData* data) {
 			SocketData sendData;
 			sendData.type = SHARED_EVENTS_TYPE_REQUESTFILECHUNK;
 
+			if (data->HasEntry("size")) {
+				std::string sizeValue = data->GetEntryValue("size");
+				FileSize = std::stoi(sizeValue);
+			}
+
 			IsProcessingFile = true;
 
 			SetConsoleColorMode(ConsoleMode::Output);
@@ -107,6 +112,10 @@ void SharedEvents::RequestFileChunk(SocketData* data) {
 		size_t readBytes = fread(FileBuffer, sizeof(char), FILE_SENDING_BUFFER_SIZE, WorkingFile);
 
 		FileBytesRead += readBytes;
+
+		double progress = ((double)FileBytesRead / (double)FileSize) * 100;
+
+		std::cout << CURRENT_TIME << INFO_MESSAGE << "sending...[" << FileBytesRead << "/" << FileSize << " (" << progress << "%)" << "]" << std::endl;
 
 		if (readBytes <= 0) {
 			FileProcessingCleanup(false);
@@ -148,6 +157,7 @@ void SharedEvents::RequestFileChunk(SocketData* data) {
 						SocketData sendData;
 						sendData.type = SHARED_EVENTS_TYPE_NEWFILE;
 						sendData.content = path;
+						sendData.entries.push_back({ "size", std::to_string(FileSize) });
 
 						try {
 							TriggerRemoteEvent(sendData);
@@ -165,7 +175,7 @@ void SharedEvents::RequestFileChunk(SocketData* data) {
 			}
 
 			SetConsoleColorMode(ConsoleMode::Output);
-			std::cout << CURRENT_TIME << ERROR_MESSAGE << "system processed all files" << std::endl;
+			std::cout << CURRENT_TIME << INFO_MESSAGE << "system processed all files" << std::endl;
 			SetConsoleColorMode(ConsoleMode::Input);
 			
 			SocketData sendData;
@@ -201,6 +211,10 @@ void SharedEvents::RecieveFileChunk(SocketData* data) {
 		if (WorkingFile) {
 			if (!data->content.empty()) {
 				FileBytesRead += data->content.length();
+
+				double progress = ((double)FileBytesRead / (double)FileSize) * 100;
+
+				std::cout << CURRENT_TIME << INFO_MESSAGE << "getting...[" << FileBytesRead << "/" << FileSize << " (" << progress << "%)" << "]" << std::endl;
 
 				fwrite(data->content.data(), sizeof(char), data->content.length(), WorkingFile);
 

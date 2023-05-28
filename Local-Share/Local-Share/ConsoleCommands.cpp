@@ -451,6 +451,7 @@ Command SendFile(Arguments) {
 				SocketData sendData;
 				sendData.type = SHARED_EVENTS_TYPE_NEWFILE;
 				sendData.content = filePath;
+				sendData.entries.push_back({ "size", std::to_string(FileSize) });
 
 				if (g_HostManager->IsRunning()) {
 					if (g_HostManager->IsConnected()) {
@@ -556,6 +557,7 @@ Command SendDir(Arguments) {
 						SocketData sendData;
 						sendData.type = SHARED_EVENTS_TYPE_NEWFILE;
 						sendData.content = filePath;
+						sendData.entries.push_back({ "size", std::to_string(FileSize) });
 
 						if (g_HostManager->IsRunning()) {
 							if (g_HostManager->IsConnected()) {
@@ -614,7 +616,49 @@ Command SendDir(Arguments) {
 }
 
 Command CancelTransfer(Arguments) {
+	SetConsoleColorMode(ConsoleMode::Output);
 
+	if (IsProcessingFile) {
+		FileProcessingCleanup();
+
+		SocketData data;
+		data.type = SHARED_EVENTS_TYPE_INTERRUPTED;
+
+		if (g_HostManager->IsRunning()) {
+			if (g_HostManager->IsConnected()) {
+				try{
+					data.type = "host intrrupted transformation";
+
+					g_HostManager->TriggerClientEvent(data);
+
+					std::cout << CURRENT_TIME << INFO_MESSAGE << "you intrrupted the file transformation" << std::endl;
+				}catch (const std::exception& exception) {
+					std::cout << CURRENT_TIME << ERROR_MESSAGE << exception.what() << std::endl;
+				}
+			}else{
+				std::cout << CURRENT_TIME << ERROR_MESSAGE << "you didn't connect to any clients yet" << std::endl;
+			}
+		}else{
+			if (g_ClientConnection->IsConnected()) {
+				try {
+					data.type = "client interrupted transformation";
+
+					g_ClientConnection->TriggerServerEvent(data);
+
+					std::cout << CURRENT_TIME << INFO_MESSAGE << "you intrrupted the file transformation" << std::endl;
+				}catch (const std::exception& exception) {
+					std::cout << CURRENT_TIME << ERROR_MESSAGE << exception.what() << std::endl;
+				}
+			}else{
+				std::cout << CURRENT_TIME << ERROR_MESSAGE << "you didn't connect to any hosts yet" << std::endl;
+			}
+		}
+
+	}else{
+		std::cout << CURRENT_TIME << ERROR_MESSAGE << "system isn't processing any files" << std::endl;
+	}
+
+	SetConsoleColorMode(ConsoleMode::Input);
 }
 
 Command IsBusy(Arguments) {
